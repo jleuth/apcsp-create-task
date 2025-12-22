@@ -53,3 +53,4 @@ if __name__ == '__main__':
 #todo: add deleting and probably permanently modifying
 #todo: maybe make compatible with repls?
 #todo: idk other qol features i can think of
+#todo: put the commands gotten from the file into a list of dicts so we dont need to keep rereading the file.
