@@ -23,14 +23,21 @@ def store(nickname, command):
 
 @cli.command()
 @click.argument('nickname', required=True)
-@click.option('--print', '-p', is_flag=True, help="Print the command instead of executing it, nice if you need to edit it without storing a new command.")
-def run(nickname):
+@click.option('--edit', '-e', is_flag=True, help="Edit the command before executing it. Enters a Vim UI to edit your command.")
+def run(nickname, edit):
     with open(STORAGE_FILE, "r") as fr:
         for line in fr:
             entry = json.loads(line)
             if entry.get("nickname") == nickname:
                 found = True
                 cmd = entry.get("command")
+                if edit:
+                    edited = click.edit(cmd)
+                    if edited is None:
+                        click.echo("Edit cancelled.")
+                        return
+                    cmd = edited.strip()
+
                 click.echo(f"Running command '{nickname}'")
                 ret = subprocess.run(cmd, shell=True, capture_output=True)
                 click.echo(ret.stdout)
