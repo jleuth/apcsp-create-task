@@ -49,3 +49,7 @@ def run(nickname, edit):
 
 if __name__ == '__main__':
     cli()
+
+#todo: add deleting and probably permanently modifying
+#todo: maybe make compatible with repls?
+#todo: idk other qol features i can think of
