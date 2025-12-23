@@ -10,6 +10,17 @@ STORAGE_FILE = Path.home() / '.cmdmgr_commands.jsonl'
 def cli():
     pass
 
+def load():
+    with open(STORAGE_FILE, "r") as file:
+        return [json.loads(line) for line in file]
+
+loaded = load()
+
+#def write():
+
+#def exec():
+
+
 @cli.command()
 @click.argument('nickname', required=True)
 @click.argument('command', required=True)
@@ -25,26 +36,23 @@ def store(nickname, command):
 @click.argument('nickname', required=True)
 @click.option('--edit', '-e', is_flag=True, help="Edit the command before executing it. Enters a Vim UI to edit your command.")
 def run(nickname, edit):
-    with open(STORAGE_FILE, "r") as fr:
-        for line in fr:
-            entry = json.loads(line)
-            if entry.get("nickname") == nickname:
-                found = True
-                cmd = entry.get("command")
-                if edit:
-                    edited = click.edit(cmd)
-                    if edited is None:
-                        click.echo("Edit cancelled.")
-                        return
-                    cmd = edited.strip()
 
-                click.echo(f"Running command '{nickname}'")
-                ret = subprocess.run(cmd, shell=True, capture_output=True)
-                click.echo(ret.stdout)
-                break
-    if not found:
-        click.echo(f"Nickname '{nickname}' not found.")
-        return
+    for entry in loaded:
+        if entry.get("nickname") == nickname:
+            found = True
+            cmd = entry.get("command")
+
+            if edit:
+                edited = click.edit(cmd)
+                if edited is None:
+                    click.echo('Edit cancelled')
+                    return
+                cmd = edited.strip()
+
+            ret = subprocess.run(cmd, shell=True, capture_output=True)
+            click.echo(ret.stdout)
+        if not found:
+            click.echo(f"Nickname '{nickname}' not found.")
     
 
 if __name__ == '__main__':
