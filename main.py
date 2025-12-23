@@ -1,4 +1,4 @@
-import click
+import argparse
 import json
 import os
 import subprocess
@@ -6,57 +6,59 @@ from pathlib import Path
 
 STORAGE_FILE = Path.home() / '.cmdmgr_commands.jsonl'
 
-@click.group()
-def cli():
-    pass
 
 def load():
+    if not STORAGE_FILE.exists():
+        return []
     with open(STORAGE_FILE, "r") as file:
         return [json.loads(line) for line in file]
 
 loaded = load()
 
-#def write():
-
-#def exec():
-
-
-@cli.command()
-@click.argument('nickname', required=True)
-@click.argument('command', required=True)
-def store(nickname, command):
+def write(nickname, command):
+    entry = {'nickname': nickname, 'command': command}
     with open(STORAGE_FILE, 'a') as f:
-        json.dump({'nickname': nickname, 'command': command}, f)
+        json.dump(entry, f)
         f.write('\n')
-    f.close()
+    loaded.append(entry)
 
-    click.echo(f"Stored command '{nickname}': {command}") 
-
-@cli.command()
-@click.argument('nickname', required=True)
-@click.option('--edit', '-e', is_flag=True, help="Edit the command before executing it. Enters a Vim UI to edit your command.")
 def run(nickname, edit):
-
     for entry in loaded:
         if entry.get("nickname") == nickname:
-            found = True
             cmd = entry.get("command")
 
             if edit:
-                edited = click.edit(cmd)
-                if edited is None:
-                    click.echo('Edit cancelled')
-                    return
-                cmd = edited.strip()
+                # todo: Implement edit functionality with argparse, ts is gonna be a pain in the ass
+                pass
 
             ret = subprocess.run(cmd, shell=True, capture_output=True)
-            click.echo(ret.stdout)
-        if not found:
-            click.echo(f"Nickname '{nickname}' not found.")
-    
+            print(ret.stdout.decode())
+            print(ret.stderr.decode())
+            return
+
+    print(f"Nickname '{nickname}' not found.")
+
+def main():
+    parser = argparse.ArgumentParser()
+    subparsers = parser.add_subparsers(dest="command")
+
+    store_p = subparsers.add_parser("store")
+    store_p.add_argument("nickname")
+    store_p.add_argument("cmd")
+
+    run_p = subparsers.add_parser("run")
+    run_p.add_argument("nickname")
+    run_p.add_argument("--edit", "-e", action="store_true")
+
+    args = parser.parse_args()
+    if args.command == "store":
+        write(args.nickname, args.cmd) 
+    elif args.command == "run":
+        run(args.nickname, args.edit) 
 
 if __name__ == '__main__':
-    cli()
+    main()
+    
 
 #todo: add deleting and probably permanently modifying
 #todo: maybe make compatible with repls?
