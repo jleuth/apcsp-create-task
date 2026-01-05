@@ -58,3 +58,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+#Some parts of programming, such as debugging and explanation, were assisted by Claude
