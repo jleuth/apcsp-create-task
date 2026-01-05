@@ -28,8 +28,8 @@ def run(nickname, edit):
             cmd = entry.get("command")
 
             if edit:
-                # todo: Implement edit functionality with argparse, ts is gonna be a pain in the ass
-                pass
+                print(f"Command: {cmd}")
+                cmd = input("Edit (or press Enter to use as-is): ") or cmd
 
             ret = subprocess.run(cmd, shell=True, capture_output=True)
             print(ret.stdout.decode())
@@ -58,9 +58,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-    
-
-#todo: add deleting and probably permanently modifying
-#todo: maybe make compatible with repls?
-#todo: idk other qol features i can think of
-#todo: put the commands gotten from the file into a list of dicts so we dont need to keep rereading the file.
